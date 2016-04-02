@@ -1,0 +1,60 @@
+yuval1488, guffi
+Yuval Shavit , Eric Gofman
+Ex: 5
+
+FILES: 
+
+README - This file 
+clftp.cpp - The client.
+srftp.cpp - The server.
+ftputil.cpp - Some functions that used in both server and client.s
+ftputil.h - The header file of ftputil.cpp
+
+REMARKS:
+Our protocol goes like this:
+	* After the connection, the client send to the server the size of the file and waits
+	  for respond if the file not too big.
+	* If the file too big, the server send accordance message and the client close the 
+	  connection.
+	* After that, if the size of the file is OK, the client send to the server the the
+	  length of the file name and the file name itself one after another.
+	* The server try to create new file with the name he got, and if not succeeded send 
+	  accordance message and the client close the connection.
+	* If succeeded, send to the client that everything OK and the client start to send the
+	  file to the server in packages of 4096 bytes each one.
+
+After the server create his socket, does bind with his host and with the given port, it
+waits for client to connect. When there is a connection, the server create a new thread, 
+and the thread deal with all the connection with the client, and waits for another client
+to connect.    
+
+ANSWERS:
+
+[1]
+Our file transfer protocol over UDP connection will work in this way:
+1. first the client send the file info - file size, number of blocks he send and 
+   the size of each one of the blocks.
+2. The server receive this data and save it, it create data structure 
+   (we will call it DS for example) that will save the following received blocks.
+3. The client receive a signal from the server that every thing is OK with the file
+   info and now he can start sending the file to the server.
+4. The server start to receive the block(packages) sent by the client, as we know
+it doesn't necessarily received in the original order and save it in the fit location in the DS. 
+5. After a timeout of 30 seconds after the last block arrive is over. The server now will check
+   in DS if all the block arrived (a simple check in DS) if not it will send to the client the
+   block index that miss. 
+6. We keep a while loop on section 5 until we receive fully the file (= all blocks arrived).
+7. The server close the connection with the client.
+
+
+* Efficiency of the UTP is that UTP faster than TCP.
+
+ 
+* Difference between this solution to our solution - in this solution the server need always to
+  verify that the file received fully while in our solution we assume it received fully once.
+  also in our solution the server don't need to use any data structure or use timer, 
+  so it easier to implement.
+  
+[2]
+As you can see in the graph, the time of transfer is linear to the file size.
+
