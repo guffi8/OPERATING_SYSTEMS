@@ -1,6 +1,0 @@
-ex5 in OPERATING SYSTEMS course
-
-implement reliable file transfer between a client and a server.
-The protocol should use TCP to transmit the file from a client to the server. You will
-create two programs, one that represents the server (srftp.c or srftp.cpp), and the other
-representing a client (clftp.c or clftp.cpp).
