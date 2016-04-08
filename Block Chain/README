@@ -1,0 +1,33 @@
+BlockChain - implement an asynchronous simplified block chain management library, 
+that will store hashed pieces of data in a chain­like structure.  
+ 
+
+------------------------------------------------------------------------------------
+yuval1488, guffi
+
+Ex: 3
+
+FILES:
+README - This file
+blockchain.h -- The header file of the library.
+blockchain.cpp -- The implementations of the functions from blockchain.h
+Block.h -- The header file of the block object.
+Block.cpp -- The implementations of the Block's methods.
+BlockChainObj.h -- The header file of the Block Chain object.
+BlockChainObj.cpp -- The implementations of the Block Chain's methods.
+
+Makefile -- The make file of the project.
+
+REMARKS:
+we used 2 extra class's in our implementation; 
+block - a class that describe the structure of each block, include several method.
+blockChainObj - a class that describe the block chain obj - the "tree/chain" that build by the 
+				blocks.    
+
+we choose to implement our exercise with 1 demon thread that handle with all the hashing & block's 
+attachment to the chain object, for closing the library we create another thread that cause the
+demon thread to stop, hashing and printing all the pending block's data, free all the memory.
+we keep a global variance that always points on the library status so we can know what is the
+current status of the thread; uninitialized, initializing, initialized, closing, close.
+in this way we can handle the permissions of each function. 
+
