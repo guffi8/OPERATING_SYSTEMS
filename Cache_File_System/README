@@ -1,0 +1,84 @@
+A Caching File System - implement the LFU algorithm.
+
+----------------------------------------------------------------------------
+yuval1488, guffi
+Ex: 4
+
+FILES: 
+
+README - This file 
+CachingFileSystem.cpp - Our implementation for the file system functions. 
+CacheFileSystemLog.h - The file system logger header, Responsible for 
+						documenting the activities of the file system.
+CacheFileSystemLog.cpp - implementation for the file system logger functions. 
+CacheFileSystemBuffer.h - Cache buffer header, The buffer is Responsible for
+						  communications between the cache block and memory.
+CacheFileSystemBuffer.cpp -  implementation for the cache buffer functions. 
+Makefile -- The make file of the project. 
+
+
+REMARKS: 
+	Our design for the ex is:
+	the Cache File System Buffer handle the cache- it holds 2 data structures:
+	cache - a vector that holds all the blocks in the cache in the current 
+			moment.
+	nameToBlock - a map that maps between file full path to a vector that 
+				  contains all the associated blocks of this file that in the
+				  cache.
+				  
+	the fuse main receive a struct with 3 global variables - 
+	* The looger: Responsible for documenting the activities of the file 
+				  system.
+	* The cache:  Responsible for communications between the cache block and 
+				  memory.
+	* The root path: The full path of the root folder.
+	
+	On each time when we open a file we first check what is the first block
+	that we need to start with and how many block we need for the current call.
+	Than we check if the file is already in the cache if true -> if the first
+	block is in the cache we take it from the cache otherwise we import it from
+	the disc to the cache and only than we read it from the cache.
+	When importing a block to the cache from the disc we first check that the 
+	cache isn't full yet, if it full we choose the LFU block from it erase it
+	and insert the new block instead of it. 
+	
+
+
+ANSWERS:
+[1] Most of the times it is right, because the heap saved on the RAM and it 
+	always faster to access the RAM instead of the DISC.
+	But there are some cases that it faster to access directly to the disc
+	instead the cache, for example if we have a huge cache [in size of 1TB], it
+	full and include only 2 files [each take something like half of the 
+	cache size] it may be faster to access those files directly from the disc
+	instead of searching for the block in all the cache.
+
+[2] We assume that the first way is better because a change of access number
+	will "cost" o(1), while in the second approach it take o(nlogn) - in every
+	access we need to resort the cache, despite the fact that erasing an 
+	element from the list took o(1) we need to sort it Immediately so actually
+	the erase action o(nlogn), while in the first way it took us o(n) which is
+	better.
+	 
+[3] The LRU will be much harder for implementation because the access to the 
+	memory handled by the hardware, the access to the memory should be quick 
+	as much we can, so we can't look after the LRU in all the computer memory,
+	In addition, we can't hold the a pointer to the LRU page, because when we 
+	need to remove it and update this pointer we will need to point now to the
+	next page that we used after this page, it will bring to a situation that 
+	we need to remember all the process we did - and it will not efficient
+	in terms of memory.
+
+[4] LRU better: It keep the cache update to the least recently files so the 
+				cache will not fill up with files that although were used 
+				plenty of times, but a long time ago and no longer relevant.
+	LFU better: Files you use them a lot in general and not just recently
+				become available more quickly.
+	both of them don't help at all: if we use only one file all the time - it
+				frequency and recently use time is similar so it don't have
+				any impact for both of the algorithms.  
+	
+[5] The ideal block-size is 4096, because on each call of the read function
+	the os asks data in size that is duplicate of 4096.
+	when the block is in a smaller or bigger size the last block of the file
+	won't be full . it cause to not efficient use of cache size . 
